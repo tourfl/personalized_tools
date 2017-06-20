@@ -34,5 +34,25 @@ classdef ImageHandler < handle
 
 			I = im2double(obj.readImage(filename));
 		end
+
+		function writeInput(obj, I, specific)
+			if nargin < 3, specific = ''; end
+
+			mkdir(obj.filenamer.inPath);
+
+			filename = obj.filenamer.buildInFilename(specific);
+
+			obj.writeImage(I, filename);
+		end
+
+		function writeOutput(obj, I, specific)
+			if nargin < 3, specific = ''; end
+
+			mkdir(obj.filenamer.outPath);
+
+			filename = obj.filenamer.buildOutFilename(specific);
+
+			imwrite(I, filename);
+		end
 	end
 end

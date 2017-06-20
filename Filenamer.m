@@ -54,9 +54,10 @@ classdef Filenamer < handle
 			filename = obj.buildFilename(obj.inPath, basename, obj.inExt, specific);
 		end
 
-		function filename = buildOutFilename(obj, extension, specific)
+		function filename = buildOutFilename(obj, specific, extension)
 			% build input filename, with specific string and extension
-			if nargin < 3, specific = ''; end
+			if(~exist('specific', 'var')), specific=''; end
+			if(~exist('extension', 'var')), extension='.png'; end
 
 			filename = obj.buildFilename(obj.outPath, obj.basename, extension, specific);
 		end
