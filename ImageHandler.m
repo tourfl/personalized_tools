@@ -54,5 +54,22 @@ classdef ImageHandler < handle
 
 			imwrite(I, filename);
 		end
+
+		%% Plotting functions
+
+		function plotInput(obj, specific, option)
+			% plot an input image, accept a scaled option
+
+			if ~exist('specific','var'), specific = ''; end
+			if ~exist('option','var'), option = ''; end
+
+				I = obj.readInput(specific);
+
+			if strcmp(option, 'scaled') || strcmp(option, 'rescaled')
+				I = I./max(I(:));
+			end
+
+				figure, imshow(im2double(I));
+		end
 	end
 end

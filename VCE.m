@@ -6,8 +6,6 @@ classdef VCE < handle
 	end
 
 	properties(Constant)
-		% declared as Constant because bypassed in the C++ algo
-		sigmamu = 300;
 	end
 
 	properties

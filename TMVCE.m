@@ -2,7 +2,7 @@ classdef TMVCE < VCE
 	%OSA wrapper of OSA
 
 	properties(Constant)
-		params_tm = [0; 100; 0; 0; 0; 0];
+		rho = 0;
 	end
 
 	properties
@@ -18,7 +18,7 @@ classdef TMVCE < VCE
 
 		function run(obj, params)
 			% call the C++ binary
-			numeric_params = [0; obj.sigmamu; params(1:end)];
+			numeric_params = [obj.rho; params(1:end)];
 
 			run@VCE(obj, numeric_params);
 		end

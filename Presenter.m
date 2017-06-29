@@ -1,7 +1,7 @@
 classdef Presenter < handle
 	%PRESENTER build presentation of multiples images
 
-	properties(Static)
+	properties(Constant)
 		sep_size = 100;
 	end
 

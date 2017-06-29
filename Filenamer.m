@@ -18,6 +18,14 @@ classdef Filenamer < handle
 		% for building
 		inExt
 		basename
+
+		% filenames
+		base
+		raw_input
+		perceptual
+		algo_input = '../results/intermediate/algo_input.png';
+		algo_output = '../results/intermediate/algo_output.png';
+		best_output
 	end
 	methods
 		function obj = Filenamer(space, solution, experiment, runId)
@@ -36,6 +44,11 @@ classdef Filenamer < handle
 			end
 
 			obj.basename = [experiment 'exp_s' num2str(solution) '_' space];
+
+			obj.base = obj.buildBaseFilename();
+			obj.raw_input = obj.buildInFilename();
+			obj.perceptual = obj.buildInFilename('percepted');
+			obj.best_output = obj.buildOutFilename();
 		end
 
 		function filename = buildInFilename(obj, specific)
