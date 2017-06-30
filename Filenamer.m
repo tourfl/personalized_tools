@@ -6,25 +6,28 @@ classdef Filenamer < handle
 		RGBext = '.png';  % including LMS space images
 	end
 
-	properties
-		% exp
-		solution
-		space
-
-		% paths
-		inPath
-		outPath
-
-		% for building
-		inExt
-		basename
-
-		% filenames
+	properties(Access = private)
 		base
 		raw_input
 		perceptual
 		algo_input = '../results/intermediate/algo_input.png';
 		algo_output = '../results/intermediate/algo_output.png';
+		basename
+
+		% paths
+		inPath
+		outPath
+	end
+
+	properties
+		% exp
+		solution
+		space
+
+		% for building
+		inExt
+
+		% filenames
 		best_output
 	end
 	methods
@@ -34,21 +37,13 @@ classdef Filenamer < handle
 			obj.solution = solution;
 			obj.space = space;
 
-			obj.inPath = ['~/Code/mondrian_exp/images/' space '/solution' num2str(solution) '/'];
-			obj.outPath= ['~/Code/mondrian_exp/results/' space '/' experiment 'exp/run' num2str(runId) '_s' num2str(solution) '/'];
-
 			if space == 'HDR'
 				obj.inExt = obj.HDRext;
 			else
 				obj.inExt = obj.RGBext;
 			end
 
-			obj.basename = [experiment 'exp_s' num2str(solution) '_' space];
-
-			obj.base = obj.buildBaseFilename();
-			obj.raw_input = obj.buildInFilename();
-			obj.perceptual = obj.buildInFilename('percepted');
-			obj.best_output = obj.buildOutFilename();
+			obj.setFilenames(experiment, runId);
 		end
 
 		function filename = buildInFilename(obj, specific)
@@ -73,6 +68,31 @@ classdef Filenamer < handle
 			if(~exist('extension', 'var')), extension='.png'; end
 
 			filename = obj.buildFilename(obj.outPath, obj.basename, extension, specific);
+		end
+
+		%% Getters and Setters for dangerous properties
+
+		function pth = getInPath(obj), pth = obj.inPath; end
+		function pth = getOutPath(obj), pth = obj.outPath; end
+		function name = getBase(obj), name = obj.base; end
+		function name = getRaw_input(obj), name = obj.raw_input; end
+		function name = getPerceptual(obj), name = obj.perceptual; end
+		function name = getAlgo_input(obj), name = obj.algo_input; end
+		function name = getAlgo_output(obj), name = obj.algo_output; end
+
+
+
+		function setFilenames(obj, experiment, runId)
+
+			obj.inPath = ['~/Code/mondrian_exp/images/' obj.space '/solution' num2str(obj.solution) '/'];
+			obj.outPath= ['~/Code/mondrian_exp/results/' obj.space '/' experiment 'exp/run' num2str(runId) '_s' num2str(obj.solution) '/'];
+
+			obj.basename = [experiment 'exp_s' num2str(obj.solution) '_' obj.space];
+
+			obj.base = obj.buildBaseFilename();
+			obj.raw_input = obj.buildInFilename();
+			obj.perceptual = obj.buildInFilename('percepted');
+			obj.best_output = obj.buildOutFilename();
 		end
 	end
 

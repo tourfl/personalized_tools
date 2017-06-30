@@ -3,6 +3,7 @@ classdef OSA < VCE
 
 	properties(Constant)
 		% Bypassed properties
+		sigmamu = 30;
 		sigmamub= 30;  % narrow neighborhood width for mean kernel
 		peso	= 10;  % weight for wide mean kernel
 		pesob	=  1;  % weight for narrow mean kernel

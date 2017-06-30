@@ -1,8 +1,16 @@
 classdef MondrianHandler < handle
-%MONDRIANHANDLER base class to work with my Mondrian Images
+%MONDRIANHANDLER base class to work with Mondrian Images
+%	it is not an abstract class, but it has not a lot of 
+%	interest by itself. See VceTester or MondrianBuilder
+%	for more sense.
 
 	properties(Constant)
     end
+
+    properties(Access = private)
+	    experiment
+		runId
+	end
 
     properties
 
@@ -16,9 +24,6 @@ classdef MondrianHandler < handle
 
 	    space
 	    solution
-	    experiment
-	    runId
-	    corrFunc
 
 
 	    % I/O stuff
@@ -28,14 +33,18 @@ classdef MondrianHandler < handle
 
 	methods
 
-		function obj = MondrianHandler(space, solution, experiment, corrFunc, runId)
+		function obj = MondrianHandler(space, solution, experiment, runId)
+			% Constructor for Mondrian Building
+
+			if ~exist('experiment', 'var'), experiment = 'None'; end
+			if ~exist('runId', 'var'), runId = 0; end
 
 			obj.space = space;
 			obj.solution = solution;
 			obj.experiment = experiment;
-			obj.corrFunc = corrFunc;
 			obj.runId = runId;
 
+			obj.filenames = Filenamer(space, solution, experiment, runId);
 
 			% I/O stuff depending on the space
 			if strcmp(space, 'HDR')
@@ -46,30 +55,15 @@ classdef MondrianHandler < handle
 				obj.writeImage= @imwrite;
 			end
 
-			obj.readImage = @(x) im2double(readImage(x));  % /!\ Not sure it will work
-
-			filenames = Filenamer(space, solution, experiment, runId);
-
-			obj.filenames = filenames;
-
-			% Load existing images
-
-			obj.Ibase = obj.readImage(filenames.base);
-			obj.Iinput_raw = obj.readImage(filenames.raw_input);
-			obj.Iperceptual = obj.readImage(filenames.perceptual);
-
-			% Apply correction to the raw input image and save it under the algo_input filename
-
-			obj.Iinput_corrected = corrFunc(obj.Iinput_raw);
-			obj.writeImage(obj.Iinput_corrected, filenames.algo_input);
+			obj.readImage = @(x) im2double(readImage(x));
 		end
 
 		function writeInput(obj, I, specific)
 			if nargin < 3, specific = ''; end
 
-			mkdir(obj.filenamer.inPath);
+			mkdir(obj.filenames.getInPath());
 
-			filename = obj.filenamer.buildInFilename(specific);
+			filename = obj.filenames.buildInFilename(specific);
 
 			obj.writeImage(I, filename);
 		end
@@ -77,9 +71,9 @@ classdef MondrianHandler < handle
 		function writeOutput(obj, I, specific)
 			if nargin < 3, specific = ''; end
 
-			mkdir(obj.filenamer.outPath);
+			mkdir(obj.filenames.getOutPath());
 
-			filename = obj.filenamer.buildOutFilename(specific);
+			filename = obj.filenames.buildOutFilename(specific);
 
 			imwrite(I, filename);
 		end
@@ -88,6 +82,28 @@ classdef MondrianHandler < handle
 
 		function show()
 			% TODO
+		end
+
+		%% Getters and Setters for dangerous properties
+
+		function exp = getExperiment(obj), exp = obj.experiment; end
+		function runId = getRunId(obj), runId = obj.runId; end
+
+		function setExperiment(obj, experiment)
+			% DANGER: need to modify the filenames
+
+			obj.experiment = experiment;
+
+			obj.filenames.setFilenames(experiment, obj.runId);
+		end
+
+
+		function setRunId(obj, runId)
+			% DANGER: need to modify the filenames
+
+			obj.runId = runId;
+
+			obj.filenames.setFilenames(obj.experiment, runId);
 		end
 	end
 end
