@@ -24,9 +24,11 @@ classdef VCE < handle
 
 			cmd = [obj.cmd_path ' ' obj.filename_input ' ' obj.filename_output];
 
+			cmd = [cmd ' "'];
 			for n=params'
 				cmd = [cmd ' ' num2str(n)];
 			end
+			cmd = [cmd '"'];
 
 			[status output] = system(cmd);
 		end

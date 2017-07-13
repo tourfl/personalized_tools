@@ -15,19 +15,22 @@ classdef TMVCE < VCE
 		end
 
 
-
+		%% call the C++ binary
 		function run(obj, params)
-			% call the C++ binary
-			numeric_params = [obj.rho; params(1:end)];
+			switch size(params, 1)
+				case 3
+					params = [obj.rho; params; params; params];
+				case 4
+					params = [params(1); params(2:4); params(2:4); params(2:4)];
+				case 9
+					params = [obj.rho; params];
+				case 10
+					params = params;
+				otherwise
+					error('bad number of params: should be 3, 4, 9 or 10.');
+			end
 
-			run@VCE(obj, numeric_params);
-		end
-
-		function tm_only(obj)
-			% call the same algorithm but avoid the variational part
-			params = obj.params_tm;
-
-			obj.run(params);
+			run@VCE(obj, params);
 		end
 	end
 end

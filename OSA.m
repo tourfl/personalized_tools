@@ -18,13 +18,18 @@ classdef OSA < VCE
 			obj = obj@VCE(filename_input, filename_output);
 		end
 
-
-
+		%% call the C++ binary
 		function run(obj, params)
-			% call the C++ binary
-			numeric_params = [obj.sigmamu; obj.sigmamub; obj.peso; obj.pesob; params];
+			switch size(params, 1)
+				case 3
+					params = [params; params; params];
+				case 9
+					params = params;
+				otherwise
+					error('bad number of params: should be 3 or 9.');
+			end
 
-			run@VCE(obj, numeric_params);
+			run@VCE(obj, params);
 		end
 	end
 
