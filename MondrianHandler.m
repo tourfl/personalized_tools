@@ -1,11 +1,10 @@
 classdef MondrianHandler < handle
 %MONDRIANHANDLER base class to work with Mondrian Images
-%	it is not an abstract class, but it has not a lot of 
-%	interest by itself. See VceTester or MondrianBuilder
-%	for more sense.
+%	This is an abstract class (owns abstract methods).
+% See VceTester or MondrianBuilder for more sense.
 
 	properties(Constant)
-    end
+  end
 
   properties(Access = private)
     experiment
@@ -16,36 +15,30 @@ classdef MondrianHandler < handle
 
    properties
 
-	    filenames  % something like filenames.raw_input, filenames.output, filenames.algo_input
+    filenames  % something like filenames.raw_input, filenames.output, filenames.algo_input
 
-	    Ibase
-	    Iinput_raw
-	    Iinput_corrected  % /!\ input of the algo
-	    Ioutput
-	    Iperceptual_raw
-	    Iperceptual_corrected
+    Iexperimental
+    Iperceptual
 
-	    Ipres  % see Presenter for more info
+    Ipres  % see Presenter for more info
+    titlePres
 
-	    corrFunc
-	    % I/O stuff
+    % I/O stuff
 		readImage
 		writeImage
 	end
 
 	methods
 
-		function obj = MondrianHandler(space, solution, corrFunc, experiment, runId)
+		function obj = MondrianHandler(space, solution, experiment, runId)
 			% Constructor for Mondrian Building
 
 			% check existence of parameters. Order is important when calling it!
-			if ~exist('corrFunc', 'var'), corrFunc = @CorrectionProvider.noCorrection; end
 			if ~exist('experiment', 'var'), experiment = 'None'; end
 			if ~exist('runId', 'var'), runId = 0; end
 
 			obj.space = space;
 			obj.solution = solution;
-			obj.corrFunc = corrFunc;
 			obj.experiment = experiment;
 			obj.runId = runId;
 
@@ -64,20 +57,6 @@ classdef MondrianHandler < handle
 
 			% Load existing images
 			obj.loadExisting;
-		end
-
-		function loadExisting(obj)
-			% load existing files
-
-			if strcmp(obj.experiment, 'None'), return, end
-
-			obj.Ibase = obj.readImage(obj.filenames.getBase);
-			obj.Iinput_raw = obj.readImage(obj.filenames.getRaw_input);
-			obj.Iperceptual_raw = obj.readImage(obj.filenames.getPerceptual);
-
-			if obj.runId == 0, return, end
-
-			obj.Ioutput = obj.readImage(obj.filenames.best_output);
 		end
 
 		function writeInput(obj, I, specific)
@@ -102,12 +81,15 @@ classdef MondrianHandler < handle
 
 		%% Plotting functions
 
-		function showOutput(obj)
+		function showInputs(obj)
 			id = obj.simpleHash(obj.experiment)
 			titleBase = [obj.experiment, 'exp, solution', num2str(obj.solution), ', ', obj.space ', ']
 
-			figure(id), imshow(obj.Iinput_raw), title([titleBase 'illuminated']), pause(.1);
-			figure(id+1), imshow(obj.Iperceptual_raw), title([titleBase 'percepted']); pause(.1);
+			I1 = obj.Iexperimental;
+			I2 = obj.Iperceptual;
+
+			figure(id), imshow(I1./max(I1(:))), title([titleBase 'illuminated']), pause(.1);
+			figure(id+1), imshow(I2./max(I2(:))), title([titleBase 'percepted']); pause(.1);
 		end
 
 		function showPres(obj)
@@ -117,18 +99,12 @@ classdef MondrianHandler < handle
 				return
 			end
 
-			if (isempty(obj.Ioutput))
-				myTitle = 'input, perceptual';
-			else
-				myTitle = 'input, output, perceptual';
-			end
-
 			id = obj.simpleHash(obj.experiment)+100;
-			figure(id), set(id, 'Position', [800 100 1700 500]), imshow(obj.Ipres), pause(0.1), title([myTitle ' - ' obj.experiment 'exp'])
+			figure(id), set(id, 'Position', [800 100 1700 500]), imshow(obj.Ipres), pause(0.1), title([obj.titlePres ' - ' obj.experiment 'exp'])
 		end
 
 		%% saveCurrentPres: save the image build with buildPres
-		function saveCurrentPres(obj)
+		function savePres(obj)
 			if(~obj.buildPres)
 				return
 			end
@@ -139,8 +115,8 @@ classdef MondrianHandler < handle
 		%% Getters and Setters (some properties are dangerous)
 
 		function space = getSpace(obj), space = obj.space; end
+		function solution = getSolution(obj), solution = obj.solution; end
 		function exp = getExperiment(obj), exp = obj.experiment; end
-		function runId = getRunId(obj), runId = obj.runId; end
 
 		function setExperiment(obj, experiment)
 			% DANGER: need to modify the filenames
@@ -149,39 +125,11 @@ classdef MondrianHandler < handle
 
     	obj.filenames.buildFilenames(obj.space, obj.solution, experiment, obj.runId);
 		end
-
-
-		function setRunId(obj, runId)
-			% DANGER: need to modify the filenames
-
-			obj.runId = runId;
-
-    	obj.filenames.buildFilenames(obj.space, obj.solution, obj.experiment, runId);
-		end
 	end
 
-	methods(Access = private)
-		%% buildPres: build Ipres, see Presenter
-		function achieved = buildPres(obj)
-
-			Iin = obj.Iinput_corrected;
-			Iout= obj.Ioutput;
-			Ipcp= obj.Iperceptual_corrected;
-
-			if (isempty(Iin) || isempty(Ipcp))
-				achieved = false;
-				return
-			end
-
-			if (isempty(Iout))
-				obj.Ipres = Presenter.build(Iin, Ipcp);
-			else
-				obj.Ipres = Presenter.build(Iin, Iout, Ipcp);
-			end
-
-			achieved = true;
-		end
-		
+	methods(Abstract)
+		loadExisting(obj);
+		buildPres(obj);
 	end
 
 	methods(Static)

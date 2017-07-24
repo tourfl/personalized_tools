@@ -31,6 +31,8 @@ classdef VCE < handle
 			cmd = [cmd '"'];
 
 			[status output] = system(cmd);
+
+			% display(output);
 		end
 	end
 end
