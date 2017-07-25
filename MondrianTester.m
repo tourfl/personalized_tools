@@ -1,7 +1,7 @@
 classdef MondrianTester < MondrianHandler
 %MONDRIANTESTER super class of VCETester and wbTester
 
-	properties
+	properties (SetAccess = protected)
 		Iexperimental_corrected
 		Iperceptual_corrected
 		Ioutput
@@ -76,6 +76,18 @@ classdef MondrianTester < MondrianHandler
 			end
 
 			achieved = true;
+		end
+
+		%% allCosts: compute and display all costs
+		function allCosts(obj)
+			Iout= obj.Ioutput;
+			Ipcp= obj.Iperceptual_corrected;
+
+			disp('ALL COSTS')
+			fprintf('\t%+20s: %-2.5f\n', func2str(obj.costFunc), obj.costFunc(Iout, Ipcp))
+			fprintf('\t%+20s: %-2.5f\n', 'MSE on hue', CostProvider.hueCost(Iout, Ipcp))
+			fprintf('\t%+20s: %-2.5f\n', 'MSE on saturation', CostProvider.saturationCost(Iout, Ipcp))
+			fprintf('\t%+20s: %-2.5f\n', 'MSE on value', CostProvider.valueCost(Iout, Ipcp))
 		end
 	end
 

@@ -6,11 +6,10 @@ classdef MondrianHandler < handle
 	properties(Constant)
   end
 
-  properties(Access = private)
+  properties(SetAccess = protected)
     experiment
     space
     solution
-		runId
 	end
 
    properties
@@ -30,19 +29,18 @@ classdef MondrianHandler < handle
 
 	methods
 
-		function obj = MondrianHandler(space, solution, experiment, runId)
+		function obj = MondrianHandler(space, solution, experiment)
 			% Constructor for Mondrian Building
 
 			% check existence of parameters. Order is important when calling it!
 			if ~exist('experiment', 'var'), experiment = 'None'; end
-			if ~exist('runId', 'var'), runId = 0; end
+
+			obj.filenames = MondrianNamer(space, solution, experiment);
 
 			obj.space = space;
 			obj.solution = solution;
 			obj.experiment = experiment;
-			obj.runId = runId;
 
-			obj.filenames = MondrianNamer(space, solution, experiment, runId);
 
 			% I/O stuff depending on the space
 			if strcmp(space, 'HDR')
@@ -112,18 +110,14 @@ classdef MondrianHandler < handle
 			obj.writeOutput(obj.Ipres, 'presentation');
 		end
 
-		%% Getters and Setters (some properties are dangerous)
+		%% Setters (some properties are dangerous)
 
-		function space = getSpace(obj), space = obj.space; end
-		function solution = getSolution(obj), solution = obj.solution; end
-		function exp = getExperiment(obj), exp = obj.experiment; end
-
-		function setExperiment(obj, experiment)
+		function set.experiment(obj, experiment)
 			% DANGER: need to modify the filenames
 
 			obj.experiment = experiment;
 
-    	obj.filenames.buildFilenames(obj.space, obj.solution, experiment, obj.runId);
+    	obj.filenames.buildFilenames(obj.space, obj.solution, experiment);
 		end
 	end
 

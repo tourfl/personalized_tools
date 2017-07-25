@@ -56,6 +56,24 @@ classdef CostProvider < handle
 			% cost on hue
 			cost = immse(Ref(:,:,1), B(:,:,1));
 		end
+
+		function cost = saturationCost(Ref, B)
+			% RGB to HSV
+			Ref = rgb2hsv(Ref);
+			B = rgb2hsv(B);
+
+			% cost on hue
+			cost = immse(Ref(:,:,2), B(:,:,2));
+		end
+
+		function cost = valueCost(Ref, B)
+			% RGB to HSV
+			Ref = rgb2hsv(Ref);
+			B = rgb2hsv(B);
+
+			% cost on hue
+			cost = immse(Ref(:,:,3), B(:,:,3));
+		end
 	end
 
 end
